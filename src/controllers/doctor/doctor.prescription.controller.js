@@ -47,26 +47,33 @@ module.exports.prescriptionList = async (req, res) => {
     const itemsPerPage = 10;
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * itemsPerPage;
+    const doctor_id = req.doctorId;
 
     try {
-        // Fetch prescription data with pagination and include patient_name
+        // ✅ Fetch prescriptions for the logged-in doctor
         const [prescription_list] = await connection.query(
             `SELECT p.*, pt.patient_name 
              FROM ${tables.PRESCRIPTION} p
+             JOIN ${tables.APPOINTMENT} a ON p.appointment_id = a.id 
              LEFT JOIN ${tables.PATIENT} pt ON p.patient_id = pt.id
+             WHERE a.doctor_id = ?
              ORDER BY p.created_at DESC
              LIMIT ? OFFSET ?`,
-            [itemsPerPage, offset]
+            [doctor_id, itemsPerPage, offset]
         );
 
-        // Count total prescriptions
+        // ✅ Count total prescriptions for the logged-in doctor
         const [[{ total }]] = await connection.query(
-            `SELECT COUNT(*) AS total FROM ${tables.PRESCRIPTION}`
+            `SELECT COUNT(*) AS total 
+             FROM ${tables.PRESCRIPTION} p
+             JOIN ${tables.APPOINTMENT} a ON p.appointment_id = a.id
+             WHERE a.doctor_id = ?`,
+            [doctor_id]
         );
 
         const totalPages = Math.ceil(total / itemsPerPage);
 
-        // Parse attachments
+        // ✅ Parse attachments
         prescription_list.forEach(prescription => {
             try {
                 prescription.attachments = prescription.attachments
@@ -78,13 +85,13 @@ module.exports.prescriptionList = async (req, res) => {
             }
         });
 
-        const doctorProfile = req.doctorProfileImg; 
+        const doctorProfile = req.doctorProfileImg;
 
         res.render('doctor/prescriptionList', {
             prescription_list,
             currentPage: page,
-            totalPages: totalPages,
-            itemsPerPage: itemsPerPage,
+            totalPages,
+            itemsPerPage,
             doctorProfile
         });
     } catch (error) {
@@ -92,6 +99,7 @@ module.exports.prescriptionList = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error", error });
     }
 };
+
 
 
 

@@ -7,22 +7,28 @@ module.exports.availableTimeList = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * itemsPerPage;
     const doctorProfile = req.doctorProfileImg; 
+    const doctor_id = req.doctorId; // Ensure doctor_id is available
 
     try {
-        // ✅ Fetch required details including available_times
+        // ✅ Fetch available times for the specific doctor
         const [available_time_list] = await connection.query(
-            `SELECT * FROM ${tables.AVAILABLE_TIME} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-            [itemsPerPage, offset]
+            `SELECT * FROM ${tables.AVAILABLE_TIME} 
+             WHERE doctor_id = ? 
+             ORDER BY created_at DESC 
+             LIMIT ? OFFSET ?`,
+            [doctor_id, itemsPerPage, offset]
         );
 
         // ✅ Count total available time entries for the doctor
         const [[{ total }]] = await connection.query(
-            `SELECT COUNT(*) AS total FROM ${tables.AVAILABLE_TIME}`
+            `SELECT COUNT(*) AS total FROM ${tables.AVAILABLE_TIME} 
+             WHERE doctor_id = ?`,
+            [doctor_id]
         );
 
         const totalPages = Math.ceil(total / itemsPerPage);
  
-        // ✅ Parse available_times or set an empty array
+        // ✅ Parse `available_times` or set an empty array
         available_time_list.forEach(doctor => {
             try {
                 doctor.available_times = doctor.available_times ? JSON.parse(doctor.available_times) : [];
@@ -48,7 +54,6 @@ module.exports.availableTimeList = async (req, res) => {
                 doctor.available_times = [];
             }
         });
-        
 
         // ✅ Handle case where no available times exist
         const message = available_time_list.length === 0 ? "No available time slots added yet." : null;
@@ -57,8 +62,8 @@ module.exports.availableTimeList = async (req, res) => {
             available_time_list,
             message,
             currentPage: page,
-            totalPages: totalPages,
-            itemsPerPage: itemsPerPage,
+            totalPages,
+            itemsPerPage,
             doctorProfile
         });
 
@@ -67,6 +72,7 @@ module.exports.availableTimeList = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error", error });
     }
 };
+
 
 
 
