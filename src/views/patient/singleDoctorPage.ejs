@@ -1,0 +1,154 @@
+<%- include('../patient/layouts/header.ejs') %>
+
+
+<style>
+   .attachment-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 250px; /* Set a fixed height for all images */
+    background-color: #f8f9fa; /* Optional: Adds background color for empty spaces */
+}
+
+.attachment-box img {
+    max-height: 100%; /* Ensure the image fits within the container */
+    width: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Show full image without cropping */
+}
+
+
+</style>
+
+<section class="page-title bg-1">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="block text-center">
+            <span class="text-white">Doctor Details</span>
+            <h1 class="text-capitalize mb-5 text-lg"><%= doctor.doctor_name %></h1>
+  
+            <!-- <ul class="list-inline breadcumb-nav">
+              <li class="list-inline-item"><a href="index.html" class="text-white">Home</a></li>
+              <li class="list-inline-item"><span class="text-white">/</span></li>
+              <li class="list-inline-item"><a href="#" class="text-white-50">Doctor Details</a></li>
+            </ul> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  
+  <section class="section doctor-single">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="doctor-img-block">
+                    <img src="<%= doctor.profile_img %>" alt="Doctor Profile" class="img-fluid w-100">
+                    <div class="info-block mt-4">
+                        <h4 class="mb-0"><%= doctor.doctor_name %></h4>
+                        <p>Department: <%= doctor.department_name %></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-md-6">
+                <div class="doctor-details mt-4 mt-lg-0">
+                    <h2 class="text-md">Introducing to myself</h2>
+                    <div class="divider my-4"></div>
+                    <p><%= doctor.details %></p>
+
+                    
+                </div>
+            </div>
+        </div>
+
+       
+    </div>
+</section>
+
+
+<section class="section doctor-qualification gray-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <h3>My Educational Qualifications</h3>
+                    <div class="divider my-4"></div>
+                </div>
+            </div>
+        </div>
+
+      
+        <!-- Attachments Section -->
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <h4>Attachments</h4>
+                <div class="row">
+                    <% if (doctor.attachments.length > 0) { %>
+                        <% doctor.attachments.forEach(attachment => { %>
+                            <div class="col-lg-3 col-sm-6 col-md-6 mb-4">
+                                <div class="attachment-box">
+                                    <a href="/assets/imgs/uploadedImages/<%= attachment %>" target="_blank">
+                                        <img src="/assets/imgs/uploadedImages/<%= attachment %>" alt="Attachment" class="img-fluid w-100">
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p>No attachments available.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+
+  
+  
+<section class="section doctor-skills">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="sidebar-widget gray-bg p-4">
+            <h5 class="mb-4">Available Times</h5>
+  
+            <ul class="list-unstyled lh-35">
+                <% if (doctor.available_times.length > 0) { %>
+                  <% doctor.available_times.forEach(timeSlot => { %>
+                    <!-- Print the date -->
+                    <li class="font-weight-bold"><%= timeSlot.date %></li>
+                    <!-- Print times under the date -->
+                    <% timeSlot.times.forEach(time => { %>
+                      <li class="pl-4"><i class="icofont-clock-time"></i> <%= time %></li>
+                    <% }) %>
+                  <% }) %>
+                <% } else { %>
+                  <li class="d-flex justify-content-between align-items-center">
+                    <span>No available slots</span>
+                  </li>
+                <% } %>
+              </ul>
+              
+  
+            <% if (doctor.available_times.length > 0) { %>
+              <a href="/api/view_appointment_page?id=<%= doctor.id %>" class="btn btn-main-2 btn-round-full mt-3">
+                Make an Appointment <i class="icofont-simple-right ml-2"></i>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  
+
+
+
+
+<%- include('../patient/layouts/footer.ejs') %>

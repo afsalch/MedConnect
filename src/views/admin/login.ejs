@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Nest Dashboard</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/theme/favicon.svg" />
+    <!-- Template CSS -->
+    <link href="/assets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <main>
+        <header class="main-header style-2 navbar">
+            <div class="col-brand">
+                <a href="index.html" class="brand-wrap">
+                    <!-- <img src="/assets/imgs/theme/logo.svg" class="logo" alt="Nest Dashboard" /> -->
+                    MedConnect
+                </a>
+            </div>
+        </header>
+        <section class="content-main mt-80 mb-80">
+            <div class="card mx-auto card-login">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Admin sign in</h4>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <input class="form-control" id="email" placeholder="Username or email" type="text" />
+                            <small id="emailError" class="text-danger"></small>
+                        </div>
+                        <!-- form-group// -->
+                        <div class="mb-3">
+                            <input class="form-control" id="password" placeholder="Password" type="password" />
+                            <small id="passwordError" class="text-danger"></small>
+                        </div>
+                        <!-- form-group// -->
+                        <div class="mb-3">
+                            <a href="" class="float-end font-sm text-muted">Forgot password?</a>
+                            <label class="form-check">
+                                <input type="checkbox" class="form-check-input" checked="" />
+                                <span class="form-check-label">Remember</span>
+                            </label>
+                        </div>
+                        <!-- form-group form-check .// -->
+                        <div class="mb-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Login
+                            </button>
+                        </div>
+                        <!-- form-group// -->
+                    </form>
+                    
+                </div>
+            </div>
+        </section>
+        <footer class="main-footer text-center">
+            <p class="font-xs">
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+                &copy; Nest - HTML Ecommerce Template .
+            </p>
+            <p class="font-xs mb-30">All rights reserved</p>
+        </footer>
+    </main>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document
+            .getElementById("loginForm")
+            .addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                let email = document.getElementById("email").value.trim();
+                let password = document.getElementById("password").value.trim();
+                let emailError = document.getElementById("emailError");
+                let passwordError = document.getElementById("passwordError");
+
+                emailError.innerText = "";
+                passwordError.innerText = "";
+                console.log(`email ${email}, password ${password}`);
+                let isValid = true;
+
+                if (email === "") {
+                    emailError.innerText = "Email is required";
+                    isValid = false;
+                }
+
+                if (password === "") {
+                    passwordError.innerText = "Password is required";
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                console.log(`email ${email}, password ${password}`);
+
+                // If valid, send POST request
+                fetch("/api/admin_login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Login Successful",
+                                text: "Redirecting to dashboard...",
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = "/api/dashboard";
+                            });
+                        } else {
+                            if (data.message.includes("email")) {
+                                emailError.innerText = data.message;
+                            } else {
+                                passwordError.innerText = data.message;
+                            }
+                        }
+                    })
+                    .catch((error) => console.error("Error:", error));
+            });
+    </script>
+</body>
+
+</html>

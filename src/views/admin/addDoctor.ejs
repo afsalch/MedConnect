@@ -1,0 +1,396 @@
+<%- include('../admin/layout/header.ejs') %>
+
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Department</h2>
+                    <!-- <div>
+                    <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="doctorForm" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Doctor Name <span style="color: red;">*</span></label>
+                                        <input type="text" id="doctor_name" name="doctor_name" placeholder="Type here"
+                                            class="form-control">
+                                        <small id="doctorError" class="text-danger"></small>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Username <span style="color: red;">*</span></label>
+                                        <input type="text" id="username" name="username" placeholder="Enter username"
+                                            class="form-control">
+                                        <small id="usernameError" class="text-danger"></small>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Password <span style="color: red;">*</span></label>
+                                        <input type="password" id="password" name="password"
+                                            placeholder="Enter password" class="form-control">
+                                        <small id="passwordError" class="text-danger"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mb-4 mt-0">
+
+                            <div class="col-sm-6 mb-3">
+                                <label class="form-label">Department <span style="color: red;">*</span></label>
+                                <select class="form-select" name="department_id" id="department_id">
+                                    <option value="">Select Department</option>
+                                    <% departments.forEach(department=> { %>
+                                        <option value="<%= department.id %>">
+                                            <%= department.department_name %>
+                                        </option>
+                                        <% }) %>
+                                </select>
+                                <small id="departmentError" class="text-danger"></small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Images</label>
+                                        <div class="card-body">
+                                            <div class="input-upload">
+                                                <input id="imageInput" class="form-control" type="file" accept="image/*" multiple>
+                                              </div>
+                                              <div id="imagePreviewContainer" class="mt-3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mb-4 mt-0">
+
+                            <div class="mb-4">
+                                <label class="form-label">Details</label>
+                                <textarea id="details" name="details" placeholder="Type here" class="form-control"
+                                    rows="4"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-2 col-6 col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-sm rounded">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> &copy; Nest - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+            let selectedImages = []; // Store selected images
+
+document.getElementById('imageInput').addEventListener('change', function (event) {
+  const files = Array.from(event.target.files);
+
+  if (files.length > 0) {
+    const previewContainer = document.getElementById('imagePreviewContainer');
+
+    files.forEach(file => {
+      if (selectedImages.some(img => img.name === file.name && img.size === file.size)) {
+        return; // Prevent duplicate files
+      }
+
+      selectedImages.push(file);
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded', 'me-2');
+
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.classList.add('rounded', 'shadow', 'img-thumbnail');
+        img.style.width = '100px';
+        img.style.height = '100px';
+        img.style.objectFit = 'cover';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '✖';
+        deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'start-0', 'rounded-circle');
+        deleteBtn.style.transform = 'translate(-50%, -50%)';
+        deleteBtn.style.padding = '2px 5px';
+        deleteBtn.style.fontSize = '12px';
+
+        deleteBtn.addEventListener('click', function () {
+          imageContainer.remove();
+          selectedImages = selectedImages.filter(imgFile => imgFile !== file);
+        });
+
+        imageContainer.appendChild(img);
+        imageContainer.appendChild(deleteBtn);
+        previewContainer.appendChild(imageContainer);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    event.target.value = "";
+  }
+});
+
+        document.getElementById('doctorForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    console.log('Doctor form submitted');
+
+    // Clear previous error messages
+    document.getElementById('doctorError').innerText = '';
+    document.getElementById('usernameError').innerText = '';
+    document.getElementById('passwordError').innerText = '';
+    document.getElementById('departmentError').innerText = '';
+
+    // Get form values
+    const doctorName = document.getElementById('doctor_name').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const departmentId = document.getElementById('department_id').value;
+    const details = document.getElementById('details').value.trim();
+    const imageInput = document.getElementById('imageInput');
+
+    let isValid = true;
+
+    // Validate required fields
+    if (doctorName === '') {
+        document.getElementById('doctorError').innerText = 'Doctor name is required.';
+        isValid = false;
+    }
+    if (username === '') {
+        document.getElementById('usernameError').innerText = 'Username is required.';
+        isValid = false;
+    }
+    if (password === '') {
+        document.getElementById('passwordError').innerText = 'Password is required.';
+        isValid = false;
+    }
+    if (departmentId === '') {
+        document.getElementById('departmentError').innerText = 'Department is required.';
+        isValid = false;
+    }
+
+    if (isValid) {
+        const formData = new FormData();
+        formData.append('doctor_name', doctorName);
+        formData.append('username', username);
+        formData.append('password', password);
+        formData.append('department_id', departmentId);
+        formData.append('details', details);
+        
+       // Append selected images
+       selectedImages.forEach(file => formData.append('attachments', file));
+
+        try {
+            const response = await fetch('/api/add_doctors', {
+                method: 'POST',
+                body: formData,
+            });
+            
+            const result = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Doctor Added Successfully!",
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.href = '/api/doctors_list';
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: result.message || "Something went wrong. Please try again!"
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: "error",
+                title: "Something went wrong!",
+                text: "Please try again later."
+            });
+        }
+    }
+});
+
+    </script>
+    <!-- <script>
+           let selectedImages = []; // Store selected images
+
+document.getElementById('imageInput').addEventListener('change', function (event) {
+  const files = Array.from(event.target.files);
+
+  if (files.length > 0) {
+    const previewContainer = document.getElementById('imagePreviewContainer');
+
+    files.forEach(file => {
+      if (selectedImages.some(img => img.name === file.name && img.size === file.size)) {
+        return; // Prevent duplicate files
+      }
+
+      selectedImages.push(file);
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const imageContainer = document.createElement('div');
+        imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded', 'me-2');
+
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.classList.add('rounded', 'shadow', 'img-thumbnail');
+        img.style.width = '100px';
+        img.style.height = '100px';
+        img.style.objectFit = 'cover';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '✖';
+        deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'start-0', 'rounded-circle');
+        deleteBtn.style.transform = 'translate(-50%, -50%)';
+        deleteBtn.style.padding = '2px 5px';
+        deleteBtn.style.fontSize = '12px';
+
+        deleteBtn.addEventListener('click', function () {
+          imageContainer.remove();
+          selectedImages = selectedImages.filter(imgFile => imgFile !== file);
+        });
+
+        imageContainer.appendChild(img);
+        imageContainer.appendChild(deleteBtn);
+        previewContainer.appendChild(imageContainer);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    event.target.value = "";
+  }
+});
+
+        document.getElementById('doctorForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            console.log('Doctor form submitted');
+
+            // Clear previous error messages
+            document.getElementById('doctorError').innerText = '';
+            document.getElementById('usernameError').innerText = '';
+            document.getElementById('passwordError').innerText = '';
+            document.getElementById('departmentError').innerText = '';
+
+            // Get form values
+            const doctorName = document.getElementById('doctor_name').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const departmentId = document.getElementById('department_id').value;
+            const details = document.getElementById('details').value.trim();
+
+            let isValid = true;
+
+            // Validate required fields
+            if (doctorName === '') {
+                document.getElementById('doctorError').innerText = 'Doctor name is required.';
+                isValid = false;
+            }
+            if (username === '') {
+                document.getElementById('usernameError').innerText = 'Username is required.';
+                isValid = false;
+            }
+            if (password === '') {
+                document.getElementById('passwordError').innerText = 'Password is required.';
+                isValid = false;
+            }
+            if (departmentId === '') {
+                document.getElementById('departmentError').innerText = 'Department is required.';
+                isValid = false;
+            }
+
+             // Append selected images
+          selectedImages.forEach(file => formData.append('attachments', file));
+
+
+            if (isValid) {
+                const formData = new FormData(this);
+                try {
+                    const response = await fetch('/api/add_doctors', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Doctor Added Successfully!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/doctors_list';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: result.message || "Something went wrong. Please try again!"
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Something went wrong!",
+                        text: "Please try again later."
+                    });
+                }
+            }
+        });
+
+    </script> -->
+    </body>
+
+    </html>

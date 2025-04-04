@@ -1,0 +1,223 @@
+<%- include('../admin/layout/header.ejs') %>
+
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Department</h2>
+                    <!-- <div>
+                    <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="departmentForm">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Department Name <span
+                                                style="color: red;">*</span></label>
+                                        <input type="text" id="department_name" name="department_name"
+                                            placeholder="Type here" class="form-control">
+                                        <small id="departmentError" class="text-danger"></small>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Details</label>
+                                        <textarea id="details" name="details" placeholder="Type here"
+                                            class="form-control" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="mb-4 mt-0">
+
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Images</label>
+                                        <div class="card-body">
+                                            <div class="input-upload">
+                                                <input id="imageInput" class="form-control" type="file"
+                                                    accept="image/*">
+                                            </div>
+                                            <div id="imagePreviewContainer" class="mt-3"></div>
+                                            <small id="imageError" class="text-danger"></small> <!-- Error message -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="mb-4 mt-0">
+
+                            <div class="row">
+                                <div class="col-lg-2 col-6 col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-sm rounded">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> &copy; Nest - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        let selectedImage = ''; // Store the selected image
+
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedImage = file; // Store image for form submission
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    previewContainer.innerHTML = ''; // Remove previous image
+
+                    const imageContainer = document.createElement('div');
+                    imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('rounded', 'shadow', 'img-thumbnail');
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'contain';
+                    img.style.border = '1px solid #ccc';
+                    img.style.background = '#f8f9fa';
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = '✖';
+                    deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'end-0', 'rounded-circle');
+                    deleteBtn.style.transform = 'translate(50%, -50%)';
+                    deleteBtn.style.padding = '2px 5px';
+                    deleteBtn.style.fontSize = '12px';
+
+                    // Delete image when button is clicked
+                    deleteBtn.addEventListener('click', function () {
+                        previewContainer.innerHTML = '';
+                        selectedImage = ''; // Reset image
+                        document.getElementById('imageInput').value = '';
+                    });
+
+                    imageContainer.appendChild(img);
+                    imageContainer.appendChild(deleteBtn);
+                    previewContainer.appendChild(imageContainer);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('departmentForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get form data
+            const departmentName = document.getElementById('department_name').value.trim();
+            const details = document.getElementById('details').value.trim();
+            const departmentError = document.getElementById('departmentError');
+            const imageError = document.getElementById('imageError');
+
+            let isValid = true;
+
+            // Validation for department name
+            if (departmentName === '') {
+                departmentError.textContent = 'Department name is required.';
+                isValid = false;
+            } else {
+                departmentError.textContent = '';
+            }
+
+            // Validation for image (Optional: Uncomment if image is required)
+            // if (!selectedImage) {
+            //     imageError.textContent = 'Please upload an image.';
+            //     isValid = false;
+            // } else {
+            //     imageError.textContent = '';
+            // }
+
+            if (!isValid) return; // Stop submission if validation fails
+
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('department_name', departmentName);
+            formData.append('details', details);
+            if (selectedImage) {
+                formData.append('image', selectedImage);
+            }
+
+            fetch('/api/add_department', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Department Added Successfully!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/department_list';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Something went wrong!",
+                        text: "Please try again later."
+                    });
+                });
+
+        });
+    </script>
+    </body>
+
+    </html>

@@ -1,0 +1,267 @@
+<%- include('../admin/layout/header.ejs') %>
+
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Edit Department</h2>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="departmentForm">
+                            <input type="hidden" name="id" id="id" value="<%= department.id %>">
+                            <!-- Hidden ID field -->
+
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Department Name <span
+                                                style="color: red;">*</span></label>
+                                        <input type="text" id="department_name" name="department_name"
+                                            placeholder="Type here" class="form-control"
+                                            value="<%= department.department_name %>">
+                                        <small id="departmentError" class="text-danger"></small>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Details</label>
+                                        <textarea id="details" name="details" placeholder="Type here"
+                                            class="form-control" rows="4"><%= department.details %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mb-4 mt-0">
+
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Existing Images</label>
+                                        <div class="card-body">
+                                            <div id="imagePreviewContainer" class="mt-3">
+                                                <% if (department.attachments && department.attachments.length> 0) { %>
+                                                    <% JSON.parse(department.attachments).forEach((attachment, index)=>
+                                                        { %>
+                                                        <div
+                                                            class="position-relative d-inline-block p-2 border rounded">
+                                                            <img src="/assets/imgs/uploadedImages/<%= attachment %>"
+                                                                alt="Attachment" width="100" height="100"
+                                                                class="m-2 rounded shadow img-thumbnail"
+                                                                data-image="<%= attachment %>">
+
+                                                            <!-- Delete Button -->
+                                                            <button type="button"
+                                                                class="btn btn-danger btn-sm position-absolute top-0 end-0 rounded-circle deleteImageBtn"
+                                                                id="deleteImageBtn" data-image="<%= attachment %>"
+                                                                style="transform: translate(50%, -50%); padding: 2px 5px; font-size: 12px;">
+                                                                ✖
+                                                            </button>
+                                                        </div>
+                                                        <% }) %>
+                                                            <% } else { %>
+                                                                <p>No existing attachments</p>
+                                                                <% } %>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Images</label>
+                                        <div class="input-upload">
+                                            <input id="imageInput" name="attachments" class="form-control" type="file"
+                                                accept="image/*" multiple>
+                                        </div>
+                                        <small id="imageError" class="text-danger"></small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mb-4 mt-0">
+
+                            <div class="row">
+                                <div class="col-lg-2 col-6 col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-sm rounded">Update</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> &copy; Nest - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        let selectedImage = ''; // Store the selected image
+        let deletedImage = false
+
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+
+            const file = event.target.files[0];
+            if (file) {
+                selectedImage = file; // Store image for form submission
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    previewContainer.innerHTML = '';
+
+                    const imageContainer = document.createElement('div');
+                    imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('rounded', 'shadow', 'img-thumbnail');
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'contain';
+                    img.style.border = '1px solid #ccc';
+                    img.style.background = '#f8f9fa';
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = '✖';
+                    deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'end-0', 'rounded-circle');
+                    deleteBtn.style.transform = 'translate(50%, -50%)';
+                    deleteBtn.style.padding = '2px 5px';
+                    deleteBtn.style.fontSize = '12px';
+
+                    // Delete image when button is clicked
+                    deleteBtn.addEventListener('click', function () {
+                        previewContainer.innerHTML = '';
+                        selectedImage = ''; // Reset image
+                        document.getElementById('imageInput').value = '';
+                    });
+
+                    imageContainer.appendChild(img);
+                    imageContainer.appendChild(deleteBtn);
+                    previewContainer.appendChild(imageContainer);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.querySelectorAll('.deleteImageBtn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                const imageContainer = event.target.closest('.position-relative');
+                if (imageContainer) {
+                    imageContainer.remove();
+                }
+                deletedImage = true;
+            });
+        });
+
+
+        document.getElementById('departmentForm').addEventListener('submit', function (event) {
+            console.log('submit');
+
+            event.preventDefault();
+
+            // Get form data
+            const departmentName = document.getElementById('department_name').value.trim();
+            const id = document.getElementById('id').value.trim();
+            const details = document.getElementById('details').value.trim();
+            const departmentError = document.getElementById('departmentError');
+            const imageError = document.getElementById('imageError');
+
+            let isValid = true;
+
+            // Validation for department name
+            if (departmentName === '') {
+                departmentError.textContent = 'Department name is required.';
+                isValid = false;
+            } else {
+                departmentError.textContent = '';
+            }
+
+            if (!isValid) return; // Stop submission if validation fails
+
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('department_name', departmentName);
+            formData.append('details', details);
+            formData.append('delete_images', deletedImage);
+            formData.append('id', id);
+            if (selectedImage) {
+                formData.append('image', selectedImage);
+            }
+            console.log('Sending form data:', formData);
+
+
+            // Send data to backend using fetch
+            fetch('/api/update_department', {
+                method: 'PUT',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Department Updated Successfully!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/department_list';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Something went wrong!",
+                        text: "Please try again later."
+                    });
+                });
+
+        });
+    </script>
+    </body>
+
+    </html>

@@ -1,0 +1,224 @@
+<%- include('../doctor/layout/header.ejs') %>
+
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Available Time List</h2>
+        </div>
+       
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="search form-control" />
+                </div>
+               
+                <div class="col-lg-2 col-6 col-md-3">
+                    <a href="/api/add_available_time_view" class="btn btn-primary btn-sm rounded">Add</a>
+                </div>
+            
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th scope="col">Available Dates</th>
+                            <th scope="col">Available Times</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Details</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (available_time_list.length === 0) { %>
+                            <tr class="warning no-result">
+                                <td style="color: red;" colspan="6"><i class="fa fa-warning"></i> No result</td>
+                            </tr>
+                        <% } else { %>
+                            <% available_time_list.forEach((item, index) => { %>
+                                <tr>
+                                    <td><%= (currentPage - 1) * itemsPerPage + index + 1 %></td>
+                
+                                    <!-- Available Dates -->
+                                    <td>
+                                        <% item.available_times.forEach((timeSlot) => { %>
+                                            <b><%= timeSlot.date %></b> <br>
+                                        <% }) %>
+                                    </td>
+                
+                                    <!-- Available Times -->
+                                    <td>
+                                        <% item.available_times.forEach((timeSlot) => { %>
+                                            <% timeSlot.times.split(", ").forEach((time) => { %>
+                                                - <%= time %> <br>
+                                            <% }) %>
+                                            <br>
+                                        <% }) %>
+                                    </td>
+                
+                                    <!-- Status -->
+                                    <td>
+                                        <% if (item.status === 'pending') { %>
+                                            <span class="badge rounded-pill alert-warning">Pending</span>
+                                        <% } else if (item.status === 'canceled') { %>
+                                            <span class="badge rounded-pill alert-danger">Canceled</span>
+                                        <% } else { %>
+                                            <span class="badge rounded-pill alert-success">Confirmed</span>
+                                        <% } %>
+                                    </td>
+                
+                                    <td><%= item.details %></td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
+                                                <i class="material-icons md-more_horiz"></i>
+                                            </a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="/api/view_edit_available_time?id=<%= item.id %>">Edit info</a>
+                                                <a class="dropdown-item text-danger" href="#" onclick="confirmDelete(event, '<%= item.id %>')">Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+                
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for(let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/api/available_time_list?page=<%= i %>">
+                            <%= i %>
+                        </a>
+                    </li>
+                    <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+<!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+<script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="assets/js/vendors/select2.min.js"></script>
+<script src="assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="/assets/js/vendors/chart.js"></script>
+<!-- Main Script -->
+<script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        $(".search").on("keyup", function () {
+            var searchTerm = $(this).val().toLowerCase(); // Get search input
+            var hasResults = false;
+
+            $("table tbody tr").each(function() {
+                var rowText = $(this).text().toLowerCase();
+                
+                if (rowText.includes(searchTerm)) {
+                    $(this).show();
+                    hasResults = true;
+                } else {
+                    if (!$(this).hasClass("no-result")) {
+                        $(this).hide();
+                    }
+                }
+            });
+
+            // Show "No results" row if no matches found
+            if (!hasResults) {
+                $(".no-result").show();
+            } else {
+                $(".no-result").hide();
+            }
+        });
+    });
+</script>
+
+<script>
+
+function confirmDelete(event, depId) {
+    event.preventDefault(); 
+
+    Swal.fire({
+        icon: 'warning',
+        title: 'Are you sure?',
+        text: 'Do you really want to delete this available time?',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#28a745',
+        cancelButtonText: 'No, keep it',
+        confirmButtonText: 'Yes, delete it',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Send PUT request using fetch
+            fetch(`/api/delete_available_time`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: depId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'The available time has been deleted successfully.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = '/api/available_time_list';
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Something went wrong', 'error');
+            });
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>

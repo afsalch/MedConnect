@@ -1,0 +1,438 @@
+<%- include('../doctor/layout/header.ejs') %>
+
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Add Available Time</h2>
+                    <!-- <div>
+                    <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="availableTimeForm">
+                            <!-- Hidden Field for ID -->
+                            <input type="hidden" id="available_id" value="<%= available_time_list.id %>">
+
+                            <!-- Available Time Section -->
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <!-- Available Date -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Available Date</label>
+                                        <input type="date" id="available_date" class="form-control"
+                                            value="<%= selected_date %>">
+                                        <small id="dateError" class="text-danger"></small>
+                                    </div>
+
+                                    <!-- Available Time -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Available Time</label>
+                                        <div class="d-flex">
+                                            <select id="available_time" class="form-control">
+                                                <option value="">Select Time</option>
+                                                <% timeSlots.forEach(time=> { %>
+                                                    <option value="<%= time %>">
+                                                        <%= time %>
+                                                    </option>
+                                                    <% }); %>
+                                            </select>
+                                            <button type="button" id="addTimeBtn"
+                                                class="btn btn-primary ms-2">Add</button>
+                                        </div>
+
+                                        <!-- Time List -->
+                                        <ul id="timeList" class="mt-2 list-group">
+                                            <% available_time_slots.forEach(time => { %>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <%= time %>
+                                                    <button onclick="removebutton('<%= time %>')" type="button"
+                                                        class="btn btn-danger btn-sm remove-time">✖</button>
+                                                </li>
+                                            <% }); %>
+                                        </ul>
+                                        
+                                        <small id="timeError" class="text-danger"></small>
+                                    </div>
+
+                                    <!-- Details -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Details</label>
+                                        <textarea id="details" name="details" placeholder="Type here"
+                                            class="form-control" rows="4"><%= available_time_list.details %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mb-4 mt-0">
+
+                            <div class="row">
+                                <div class="col-lg-2 col-6 col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-sm rounded">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> &copy; Nest - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+ 
+    <script>
+        let availableTimes = [];
+        
+         function removebutton(time) {
+        // Remove the time from availableTimes array
+        availableTimes = availableTimes.filter(t => t !== time);
+
+        // Find the corresponding list item and remove it
+        document.querySelectorAll("#timeList li").forEach((li) => {
+            let timeText = li.firstChild.textContent.trim(); // Get only the time text
+            if (timeText === time) {
+                li.remove(); // Remove the matched list item
+            }
+        });
+    }
+        document.addEventListener("DOMContentLoaded", function () {
+            const dateInput = document.getElementById("available_date");
+            const timeInput = document.getElementById("available_time");
+            const available_id = document.getElementById("available_id").value;
+            const details = document.getElementById("details");
+            const addTimeBtn = document.getElementById("addTimeBtn");
+            const timeList = document.getElementById("timeList");
+            const timeError = document.getElementById("timeError");
+            const dateError = document.getElementById("dateError");
+            const form = document.getElementById("availableTimeForm");
+
+            
+
+
+            // Set the min and max date to the current month
+            let today = new Date();
+            let firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            const formatDate = (date) => {
+                let year = date.getFullYear();
+                let month = (date.getMonth() + 1).toString().padStart(2, '0');
+                let day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            dateInput.min = formatDate(firstDay);
+            dateInput.max = formatDate(lastDay);
+
+            // Populate availableTimes from preloaded list
+            document.querySelectorAll("#timeList li").forEach((li) => {
+                let timeText = li.firstChild.textContent.trim();
+
+                if (!availableTimes.includes(timeText)) {
+                    availableTimes.push(timeText);
+                }
+            });
+
+            
+
+
+
+            // Validate date selection
+            dateInput.addEventListener("input", function () {
+                if (dateInput.value < dateInput.min || dateInput.value > dateInput.max) {
+                    dateError.textContent = "Please select a valid date within the current month.";
+                    dateInput.value = "";
+                } else {
+                    dateError.textContent = "";
+                }
+            });
+
+            // Add available time to the list
+            addTimeBtn.addEventListener("click", function () {
+                const date = dateInput.value.trim();
+                const time = timeInput.value.trim();
+                console.log(time);
+
+
+                if (!date) {
+                    dateError.textContent = "Please select a date.";
+                    return;
+                } else {
+                    dateError.textContent = "";
+                }
+
+                if (!time) {
+                    timeError.textContent = "Please select a time.";
+                    return;
+                } else {
+                    timeError.textContent = "";
+                }
+
+                if (availableTimes.includes(time)) {
+                    timeError.textContent = "Time already added.";
+                    return;
+                }
+
+                availableTimes.push(time);
+
+                // Append to time list
+                const listItem = document.createElement("li");
+                listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                listItem.textContent = time; // Only display the time, not the date
+
+                const removeBtn = document.createElement("button");
+                removeBtn.innerHTML = "✖";
+                removeBtn.classList.add("btn", "btn-danger", "btn-sm");
+                removeBtn.onclick = function () {
+                    console.log('remove');
+
+                    availableTimes = availableTimes.filter(t => t !== time);
+                    listItem.remove();
+                };
+
+                listItem.appendChild(removeBtn);
+                timeList.appendChild(listItem);
+            });
+
+            // Handle form submission
+            form.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const selectedDate = dateInput.value.trim(); // Capture selected date
+
+                if (!selectedDate) {
+                    dateError.textContent = "Please select a date.";
+                    return;
+                } else {
+                    dateError.textContent = "";
+                }
+
+                if (availableTimes.length === 0) {
+                    timeError.textContent = "Please add at least one available time.";
+                    return;
+                } else {
+                    timeError.textContent = "";
+                }
+
+                const formData = new FormData();
+                formData.append('selected_date', selectedDate);
+                formData.append('id', available_id);
+                formData.append('details', details.value);
+                formData.append('available_times', JSON.stringify(availableTimes));
+
+                console.log('submitted');
+
+                fetch('/api/update_available_time', {
+                    method: 'PUT',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Available Time Updated Successfully!",
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = '/api/available_time_list';
+                            });
+                        } else {
+                            Swal.fire({ icon: "error", title: "Oops...", text: data.message });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({ icon: "error", title: "Something went wrong!", text: "Please try again later." });
+                    });
+            });
+        });
+
+    </script>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dateInput = document.getElementById("available_date");
+            const timeInput = document.getElementById("available_time");
+            const available_id = document.getElementById("available_id").value;
+            const details = document.getElementById("details");
+            const addTimeBtn = document.getElementById("addTimeBtn");
+            const timeList = document.getElementById("timeList");
+            const timeError = document.getElementById("timeError");
+            const dateError = document.getElementById("dateError");
+            const form = document.getElementById("availableTimeForm");
+        
+            let availableTimes = []; 
+        
+            // Set the min and max date to the current month
+            let today = new Date();
+            let firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+            const formatDate = (date) => {
+                let year = date.getFullYear();
+                let month = (date.getMonth() + 1).toString().padStart(2, '0');
+                let day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+        
+            dateInput.min = formatDate(firstDay);
+            dateInput.max = formatDate(lastDay);
+        
+            // Validate date selection
+            dateInput.addEventListener("input", function () {
+                if (dateInput.value < dateInput.min || dateInput.value > dateInput.max) {
+                    dateError.textContent = "Please select a valid date within the current month.";
+                    dateInput.value = "";
+                } else {
+                    dateError.textContent = "";
+                }
+            });
+        
+            // Add available time to the list
+            addTimeBtn.addEventListener("click", function () {
+                const date = dateInput.value.trim();
+                const time = timeInput.value.trim();
+        
+                if (!date) {
+                    dateError.textContent = "Please select a date.";
+                    return;
+                } else {
+                    dateError.textContent = "";
+                }
+        
+                if (!time) {
+                    timeError.textContent = "Please select a time.";
+                    return;
+                } else {
+                    timeError.textContent = "";
+                }
+        
+                if (availableTimes.includes(time)) {
+                    timeError.textContent = "Time already added.";
+                    return;
+                }
+        
+                availableTimes.push(time);
+        
+                // Append to time list
+                const listItem = document.createElement("li");
+                listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                listItem.textContent = time; // Only display the time, not the date
+        
+                const removeBtn = document.createElement("button");
+                removeBtn.innerHTML = "✖";
+                removeBtn.classList.add("btn", "btn-danger", "btn-sm");
+                removeBtn.onclick = function () {
+                    availableTimes = availableTimes.filter(t => t !== time);
+                    listItem.remove();
+                };
+        
+                listItem.appendChild(removeBtn);
+                timeList.appendChild(listItem);
+            });
+        
+            // Handle form submission
+            form.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                
+        
+                const selectedDate = dateInput.value.trim(); // Capture selected date
+        
+                if (!selectedDate) {
+                    dateError.textContent = "Please select a date.";
+                    return;
+                } else {
+                    dateError.textContent = "";
+                }
+        
+               
+        
+                if (availableTimes.length === 0) {
+                    timeError.textContent = "Please add at least one available time.";
+                    return;
+                } else {
+                    timeError.textContent = "";
+                }
+        
+                const formData = new FormData();
+                formData.append('selected_date', selectedDate); 
+                formData.append('id', available_id); 
+                formData.append('details', details.value);
+                formData.append('available_times', JSON.stringify(availableTimes)); 
+        
+                console.log('submitted');
+                
+                fetch('/api/update_available_time', {
+                    method: 'PUT',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Available Time Updated Successfully!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/available_time_list';
+                        });
+                    } else {
+                        Swal.fire({ icon: "error", title: "Oops...", text: data.message });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({ icon: "error", title: "Something went wrong!", text: "Please try again later." });
+                });
+            });
+        });
+    </script> -->
+
+
+
+    </body>
+
+    </html>

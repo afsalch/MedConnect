@@ -1,0 +1,271 @@
+<%- include('../patient/layouts/header.ejs') %>
+
+    <style>
+        .doctor-img img {
+            height: 250px;
+            object-fit: cover;
+        }
+    </style>
+
+    <section class="page-title bg-1">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="block text-center">
+                        <span class="text-white">Department Details</span>
+                        <h1 class="text-capitalize mb-5 text-lg">
+                            <%= department.department_name %> Department
+                        </h1>
+
+                        <!-- <ul class="list-inline breadcumb-nav">
+              <li class="list-inline-item"><a href="index.html" class="text-white">Home</a></li>
+              <li class="list-inline-item"><span class="text-white">/</span></li>
+              <li class="list-inline-item"><a href="#" class="text-white-50">Department Details</a></li>
+            </ul> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section department-single">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="department-img">
+                        <img src="<%= department.attachments.length > 0 ? '/assets/imgs/uploadedImages/' + department.attachments[0] : '/images/no photo_LE_upscale_balanced_x4.jpg' %>"
+                            alt="<%= department.department_name %>" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="department-content mt-5">
+                        <h3 class="text-md">
+                            <%= department.department_name %>
+                        </h3>
+                        <div class="divider my-4"></div>
+
+                        <p>
+                            <%= department.details %>
+                        </p>
+
+                        <!-- <h3 class="mt-5 mb-4">Our Gynecology Services</h3>
+                    <div class="divider my-4"></div>
+                    <ul class="list-unstyled department-service">
+                        <li><i class="icofont-check mr-2"></i>Annual Women's Health Exams</li>
+                        <li><i class="icofont-check mr-2"></i>Pregnancy & Prenatal Care</li>
+                        <li><i class="icofont-check mr-2"></i>Menstrual Disorder Treatments</li>
+                        <li><i class="icofont-check mr-2"></i>Hormonal Therapy & Menopause Management</li>
+                        <li><i class="icofont-check mr-2"></i>Infertility Diagnosis & Treatment</li>
+                        <li><i class="icofont-check mr-2"></i>Minimally Invasive Gynecological Surgery</li>
+                    </ul>
+
+                    <a href="/api/view_appointment_page" class="btn btn-main-2 btn-round-full">
+                        Make an Appointment <i class="icofont-simple-right ml-2"></i>
+                    </a> -->
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="sidebar-widget schedule-widget mt-5">
+                        <div class="sidebar-contact-info mt-4">
+                            <p class="mb-0">Email</p>
+                            <h3>support@novena.com</h3>
+                        </div>
+
+                        <div class="sidebar-contact-info mt-4">
+                            <p class="mb-0">Address</p>
+                            <h3>Ta-134/A, New York, USA</h3>
+                        </div>
+
+                        <div class="sidebar-contact-info mt-4">
+                            <p class="mb-0">Need Urgent Help?</p>
+                            <h3>+23-4565-65768</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section doctors">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 text-center">
+                    <div class="section-title">
+                        <h2>Doctors</h2>
+                        <div class="divider mx-auto my-4"></div>
+                        <p>Meet our expert doctors specialized in <%= department.department_name %>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <% if (doctors.length> 0) { %>
+                <div class="row shuffle-wrapper portfolio-gallery">
+                    <% doctors.forEach(doctor=> { %>
+                        <div class="col-lg-3 col-sm-6 col-md-6 mb-4 shuffle-item">
+                            <div class="position-relative doctor-inner-box">
+                                <div class="doctor-profile">
+                                    <div class="doctor-img">
+                                        <img src="<%= doctor.profile_img.length > 0 ? '/assets/imgs/uploadedImages/' + doctor.profile_img[0] : '/images/no photo_LE_upscale_balanced_x4.jpg' %>"
+                                            alt="doctor-image" class="img-fluid w-100">
+                                    </div>
+                                </div>
+                                <div class="content mt-3">
+                                    <h4 class="mb-0">
+                                        <a href="/api/view_single_doctor_page?id=<%= doctor.id %>">
+                                            <%= doctor.doctor_name %>
+                                        </a>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+                <% } else { %>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6 text-center">
+                            <p style="color: red;">No doctors available in this department.</p>
+                        </div>
+                    </div>
+                    <% } %>
+        </div>
+    </section>
+
+    <section class="section blog-wrap">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="comment-area mt-4 mb-5">
+                                <h4 class="mb-4"><%= reviews.length %> Comments on <%= department.department_name %>...</h4>
+                                
+                                <!-- Scrollable Comment Section -->
+                                <div class="comment-container" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                                    <ul class="comment-tree list-unstyled">
+                                        <% if (reviews.length > 0) { %>
+                                            <% reviews.forEach(review => { %>
+                                                <li class="mb-5">
+                                                    <div class="comment-area-box">
+                                                        <div class="comment-thumb float-left" style="height: 100px; width: 100px;">
+                                                            <img alt="Profile Image" 
+                                                                 src="<%= review.profile_img ? '/uploads/' + review.profile_img : '/images/no photo_LE_upscale_balanced_x4.jpg' %>" 
+                                                                 class="img-fluid">
+                                                        </div>
+    
+                                                        <div class="comment-info">
+                                                            <h5 class="mb-1"><%= review.patient_name %></h5>
+                                                            <span>Address: <%= review.address %></span>
+                                                            <span class="date-comm">| Posted <%= new Date(review.created_at).toLocaleDateString() %></span>
+                                                        </div>
+    
+                                                        <!-- Read More Feature -->
+                                                        <div class="comment-content mt-5">
+                                                            <p class="comment-text">
+                                                                <%= review.comment.length > 150 ? review.comment.substring(0, 150) + '...' : review.comment %>
+                                                            </p>
+                                                            <% if (review.comment.length > 150) { %>
+                                                                <a href="javascript:void(0);" class="read-more" data-fulltext="<%= review.comment %>">Read More</a>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <p>No reviews available for this department.</p>
+                                        <% } %>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- Comment Form -->
+                        <div class="col-lg-12">
+                            <form class="comment-form my-5" id="comment-form">
+                                <h4 class="mb-4">Write a comment</h4>
+                                <textarea class="form-control mb-4" name="comment" id="comment" cols="30" rows="10"
+                                    placeholder="Comment"></textarea>
+                                <input class="btn btn-main-2 btn-round-full" type="submit" name="submit-contact"
+                                    id="submit_contact" value="Submit Comment">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".read-more").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    const commentText = this.previousElementSibling;
+                    commentText.textContent = this.getAttribute("data-fulltext");
+                    this.style.display = "none"; // Hide "Read More" after expanding
+                });
+            });
+        });
+    </script>
+    
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById("comment-form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            let comment = document.getElementById("comment").value.trim();
+            let departmentId = "<%= department.id %>";
+            console.log("departmentId", departmentId);
+            
+
+            if (comment === "") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Comment cannot be empty!",
+                });
+                return;
+            }
+
+            // Send POST request to the backend
+            fetch("/api/add_department_comment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ comment, department_id: departmentId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Comment Added",
+                            text: "Your comment has been successfully added.",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: data.message || "Failed to add comment. Try again later.",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        });
+
+    </script>
+
+    <%- include('../patient/layouts/footer.ejs') %>

@@ -1,0 +1,230 @@
+<%- include('../admin/layout/header.ejs') %>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Doctor Details</h2>
+        </div>
+    </div>
+    
+    <div class="card">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <!-- <span><i class="material-icons md-calendar_today"></i> <b><%= new Date(doctor.created_at).toDateString() %></b></span> <br /> -->
+                    <!-- <small class="text-muted">Doctor ID: <%= doctor.id %></small> -->
+                </div>
+            </div>
+        </header>
+
+        <div class="card-body">
+            <div class="row mb-50 mt-20">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Doctor Name</h6>
+                            <p class="mb-1">
+                                <%= doctor.doctor_name %> <br />
+                                Username: <%= doctor.username %> <br />
+                                Department: <%= doctor.department_name %>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-description"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Details</h6>
+                            <p class="mb-1"><%= doctor.details || "No details available" %></p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-today"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Joined On</h6>
+                            <p class="mb-1"><%= new Date(doctor.created_at).toLocaleString() %></p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <% if (availableTimes.length > 0) { %>
+                <h3>Available Time Slots</h3>
+                <% availableTimes.forEach(slot => { %>
+                    <div class="time-slot">
+                        <p><strong>Status:</strong> <%= slot.time_slot_status %></p>
+                        <ul>
+                            <% slot.available_times.forEach(timeEntry => { %>
+                                <li><strong>Date:</strong> <%= timeEntry.date %></li>
+                                <ul>
+                                    <% timeEntry.times.forEach(time => { %>
+                                        <li><%= time %></li>
+                                    <% }) %>
+                                </ul>
+                            <% }) %>
+                        </ul>
+            
+                        <% if (slot.time_slot_status === 'pending') { %>
+                            <button onclick="confirmTime(event, '<%= slot.available_time_id %>')" class="btn btn-success">Confirm Time</button>
+                            <button onclick="cancelTime(event, '<%= slot.available_time_id %>')" class="btn btn-danger">Cancel Time</button>
+                        <% } %>
+                    </div>
+                    <hr>
+                <% }) %>
+            <% } else { %>
+                <p>No available time slots.</p>
+            <% } %>
+            
+
+            <!-- Attachments Section -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h5 class="mb-3">Attachments</h5>
+                </div>
+                <% if (doctor.attachments.length > 0) { %>
+                    <% doctor.attachments.forEach(function(attachment) { %>
+                        <div class="col-md-3">
+                            <div class="card card-product-grid">
+                                <a href="/assets/imgs/uploadedImages/<%= attachment %>" class="img-wrap" target="_blank" style="display: flex; justify-content: center; align-items: center; height: 180px;">
+                                    <img src="/assets/imgs/uploadedImages/<%= attachment %>" alt="Attachment" style="width: 150px; height: 150px; object-fit: cover; border: 1px solid #ccc; background: #f8f9fa;">
+                                </a>                                
+                                <div class="info-wrap">
+                                    <a href="/assets/imgs/uploadedImages/<%= attachment %>" target="_blank" class="title"><%= attachment %></a>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p>No attachments available.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>document.write(new Date().getFullYear());</script>
+            &copy; Nest - HTML Ecommerce Template.
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="/assets/js/main.js?v=1.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+    function cancelTime(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure?',
+            text: 'Do you really want to cancel this time slot? if confirm cancel be edit',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#28a745',
+            cancelButtonText: 'No, keep it',
+            confirmButtonText: 'Yes, cancel it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/cancel_doctor`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Time slot canceled successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+
+    function confirmTime(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Confirm Time Slot?',
+            text: 'Do you really want to confirm this time slot? if confirm cannot be edit',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'No, cancel',
+            confirmButtonText: 'Yes, confirm it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/confirm_doctor`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Time slot confirmed successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,306 @@
+<%- include('../patient/layouts/header.ejs') %>
+
+  <style>
+    .btn-sm {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .p-2 {
+      margin-left: 10px;
+      margin-top: 10px;
+    }
+  </style>
+
+
+
+  <section class="page-title bg-1">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="block text-center">
+            <span class="text-white">Book your Seat</span>
+            <h1 class="text-capitalize mb-5 text-lg">Appoinment</h1>
+
+            <!-- <ul class="list-inline breadcumb-nav">
+              <li class="list-inline-item"><a href="index.html" class="text-white">Home</a></li>
+              <li class="list-inline-item"><span class="text-white">/</span></li>
+              <li class="list-inline-item"><a href="#" class="text-white-50">Book your Seat</a></li>
+            </ul> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="appoinment section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="mt-3">
+            <div class="feature-icon mb-3">
+              <i class="icofont-support text-lg"></i>
+            </div>
+            <span class="h3">Call for an Emergency Service!</span>
+            <h2 class="text-color mt-3">+84 789 1256 </h2>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="appoinment-wrap mt-5 mt-lg-0 pl-lg-5">
+            <h2 class="mb-2 title-color">Book an appoinment</h2>
+            <p class="mb-4">Mollitia dicta commodi est recusandae iste, natus eum asperiores corrupti qui velit . Iste
+              dolorum atque similique praesentium soluta.</p>
+            <form id="appointment-form" class="appoinment-form" method="post" action="#">
+              <div class="row">
+                <!-- Date Selection -->
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <select class="form-control" id="date">
+                      <option value="">Choose Date</option>
+                      <% if (available_times.length> 0) { %>
+                        <% available_times.forEach(timeSlot => { %>
+                          <% let formattedDate = new Date(timeSlot.date).toLocaleDateString("en-GB"); %>
+                          <option value="<%= timeSlot.date %>">
+                            <%= formattedDate %>
+                          </option>
+                        <% }) %>
+                        
+                                  <% } %>
+                    </select>
+                    <small style="color: red;" id="dateError"></small>
+                  </div>
+                </div>
+
+                <!-- Time Selection -->
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <select class="form-control" id="time">
+                      <option value="">Choose Time</option>
+                    </select>
+                    <small style="color: red;" id="timeError"></small>
+                  </div>
+                </div>
+
+                <input type="hidden" name="doctor_id" value="<%= doctor_id %>">
+
+              </div>
+
+              <div class="form-group-2 mb-4">
+                <textarea name="message" id="message" class="form-control" rows="6"
+                  placeholder="Your Message"></textarea>
+                <small style="color: red;" id="messageError"></small>
+              </div>
+
+              <div class="input-upload">
+                <input id="imageInput" class="form-control" type="file" accept="image/*" multiple>
+              </div>
+              <div id="imagePreviewContainer" class="mt-3"></div>
+
+              <button style="margin-top: 20px;" type="submit" class="btn btn-main btn-round-full">Make Appointment<i
+                  class="icofont-simple-right ml-2"></i></button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    let selectedImages = []; // Store selected images
+
+    document.getElementById('imageInput').addEventListener('change', function (event) {
+      const files = Array.from(event.target.files);
+
+      if (files.length > 0) {
+        const previewContainer = document.getElementById('imagePreviewContainer');
+
+        files.forEach(file => {
+          if (selectedImages.some(img => img.name === file.name && img.size === file.size)) {
+            return; // Prevent duplicate files
+          }
+
+          selectedImages.push(file);
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const imageContainer = document.createElement('div');
+            imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded', 'me-2');
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('rounded', 'shadow', 'img-thumbnail');
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '✖';
+            deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'start-0', 'rounded-circle');
+            deleteBtn.style.transform = 'translate(-50%, -50%)';
+            deleteBtn.style.padding = '2px 5px';
+            deleteBtn.style.fontSize = '12px';
+
+            deleteBtn.addEventListener('click', function () {
+              imageContainer.remove();
+              selectedImages = selectedImages.filter(imgFile => imgFile !== file);
+            });
+
+            imageContainer.appendChild(img);
+            imageContainer.appendChild(deleteBtn);
+            previewContainer.appendChild(imageContainer);
+          };
+          reader.readAsDataURL(file);
+        });
+
+        event.target.value = "";
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const availableTimes = JSON.parse('<%- JSON.stringify(available_times) %>'); 
+      const dateSelect = document.getElementById("date");
+      const timeSelect = document.getElementById("time");
+
+      dateSelect.addEventListener("change", function () {
+        const selectedDate = this.value;
+        timeSelect.innerHTML = '<option value="">Choose Time</option>';
+
+        if (!selectedDate) return;
+
+        // Flatten the array since your data is nested inside another array
+        const flattenedTimes = availableTimes.flat();
+
+        // Find the selected date's times
+        const selectedSlot = flattenedTimes.find(slot => slot.date === selectedDate);
+
+        if (selectedSlot) {
+          selectedSlot.times.forEach(time => {
+            const option = document.createElement("option");
+            option.value = time;
+            option.textContent = time;
+            timeSelect.appendChild(option);
+          });
+        }
+      });
+    });
+
+
+    document.getElementById("appointment-form").addEventListener("submit", async function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const form = event.target;
+      const formData = new FormData(form);
+
+      // Get selected values from dropdowns
+      const selectedDate = document.getElementById("date").value;
+      const selectedTime = document.getElementById("time").value;
+      const message = document.getElementById("message").value.trim();
+      const doctorId = document.querySelector('input[name="doctor_id"]').value;
+
+      let isValid = true; // Track validation status
+
+      // Clear previous errors
+      document.getElementById('dateError').textContent = '';
+      document.getElementById('timeError').textContent = '';
+      document.getElementById('messageError').textContent = '';
+
+      // Validation
+      if (!selectedDate) {
+        document.getElementById("dateError").textContent = "Please select a date.";
+        isValid = false;
+      }
+
+      if (!selectedTime) {
+        document.getElementById("timeError").textContent = "Please select a time.";
+        isValid = false;
+      }
+
+      if (message.length < 10) {
+        document.getElementById("messageError").textContent = "Message must be at least 10 characters long.";
+        isValid = false;
+      }
+
+      if (!doctorId) {
+        Swal.fire("Error", "Doctor ID is missing. Please try again.", "error");
+        return;
+      }
+
+      console.log(doctorId);
+      console.log(message);
+      
+      
+
+      // Stop form submission if validation fails
+      if (!isValid) {
+        return;
+      }
+
+      // SweetAlert confirmation before submission
+      Swal.fire({
+        title: "Confirm Appointment",
+        text: `Do you want an appointment on ${selectedDate} at ${selectedTime}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Book it!",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#28a745",  // Green (Success)
+        cancelButtonColor: "#dc3545"    // Red (Danger)
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          // Append data to FormData
+          formData.append("date", selectedDate);
+          formData.append("time", selectedTime);
+          formData.append("message", message);
+          formData.append("doctor_id", doctorId);
+
+          // Append selected images
+          selectedImages.forEach(file => formData.append('attachments', file));
+
+          console.log([...formData.entries()]);
+
+          try {
+            const response = await fetch("/api/book_appointment", {
+              method: "POST",
+              body: formData
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+              Swal.fire({
+                icon: "success",
+                title: "Appointment booked successfully!",
+                showConfirmButton: false,
+                timer: 1500
+              }).then(() => {
+                form.reset(); // Reset form fields
+                document.getElementById("imagePreviewContainer").innerHTML = "";
+                selectedImages = []; // Reset image array
+                window.location.href = `/api/view_appointment_page?id=${result.doctor_id}`;
+              });
+            } else {
+              Swal.fire("Error", result.message, "error");
+            }
+          } catch (error) {
+            console.error("Error submitting form:", error);
+            Swal.fire("Error", "Something went wrong. Please try again.", "error");
+          }
+        }
+      });
+    });
+
+
+
+
+  </script>
+
+
+
+  <%- include('../patient/layouts/footer.ejs') %>

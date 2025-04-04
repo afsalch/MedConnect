@@ -1,0 +1,273 @@
+<%- include('../admin/layout/header.ejs') %>
+
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Edit doctor</h2>
+                    <!-- <div>
+                    <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="editDoctorForm" enctype="multipart/form-data">
+                            <input type="hidden" name="doctor_id" id="doctor_id" value="<%= doctor.id %>">
+
+                            <div class="mb-4">
+                                <label class="form-label">Doctor Name <span style="color: red;">*</span></label>
+                                <input type="text" id="doctor_name" name="doctor_name" class="form-control"
+                                    value="<%= doctor.doctor_name %>">
+                                <small id="doctorError" class="text-danger"></small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Username <span style="color: red;">*</span></label>
+                                <input type="text" id="username" name="username" class="form-control"
+                                    value="<%= doctor.username %>">
+                                <small id="usernameError" class="text-danger"></small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Department <span style="color: red;">*</span></label>
+                                <select class="form-select" name="department_id" id="department_id">
+                                    <option value="">Select Department</option>
+                                    <% departments.forEach(department=> { %>
+                                        <option value="<%= department.id %>" <%=doctor.department_id===department.id
+                                            ? "selected" : "" %> >
+                                            <%= department.department_name %>
+                                        </option>
+                                        <% }) %>
+                                </select>
+                                <small id="departmentError" class="text-danger"></small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Details</label>
+                                <textarea id="details" name="details" class="form-control"
+                                    rows="4"><%= doctor.details %></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Images</label>
+                                <div class="card-body">
+                                    <div class="input-upload">
+                                        <input id="imageInput" class="form-control" type="file" accept="image/*"
+                                            multiple>
+                                    </div>
+                                    <div id="imagePreviewContainer" class="mt-3">
+                                        <% doctor.attachments.forEach((image, index)=> { %>
+                                            <div class="position-relative d-inline-block p-2 border rounded me-2">
+                                                <img src="/assets/imgs/uploadedImages/<%= image %>"
+                                                    class="rounded shadow img-thumbnail"
+                                                    style="width: 100px; height: 100px; object-fit: cover;">
+                                                <button type="button"
+                                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 rounded-circle removeExistingImage"
+                                                    data-image="<%= image %>">✖</button>
+                                            </div>
+                                            <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm rounded">Update</button>
+                        </form>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> &copy; Nest - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let selectedImages = []; // Store new images
+            let removedImages = [];
+
+
+            // Handle new image uploads
+            document.getElementById('imageInput').addEventListener('change', function (event) {
+                const files = Array.from(event.target.files);
+                const previewContainer = document.getElementById('imagePreviewContainer');
+
+                files.forEach(file => {
+                    if (selectedImages.some(img => img.name === file.name && img.size === file.size)) return; // Prevent duplicates
+
+                    selectedImages.push(file);
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imageContainer = document.createElement('div');
+                        imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded', 'me-2');
+
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.classList.add('rounded', 'shadow', 'img-thumbnail');
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.innerHTML = '✖';
+                        deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'end-0', 'rounded-circle');
+                        deleteBtn.style.transform = 'translate(50%, -50%)';
+
+                        deleteBtn.addEventListener('click', function () {
+                            imageContainer.remove();
+                            selectedImages = selectedImages.filter(imgFile => imgFile !== file);
+                        });
+
+                        imageContainer.appendChild(img);
+                        imageContainer.appendChild(deleteBtn);
+                        previewContainer.appendChild(imageContainer);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                event.target.value = "";
+            });
+
+            // Use event delegation for removing existing images
+            document.getElementById('imagePreviewContainer').addEventListener('click', function (event) {
+                if (event.target.classList.contains('removeExistingImage')) {
+                    const imageSrc = event.target.getAttribute('data-image');
+                    removedImages.push(imageSrc);
+                    event.target.parentElement.remove();
+                }
+            });
+
+            // Handle form submission
+            document.getElementById('editDoctorForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const doctorId = document.getElementById('doctor_id').value;
+                const doctorName = document.getElementById('doctor_name').value.trim();
+                const details = document.getElementById('details').value.trim();
+                const departmentId = document.getElementById('department_id').value;
+                const username = document.getElementById('username').value;
+
+                let isValid = true;
+                document.getElementById('doctorError').textContent = '';
+                document.getElementById('departmentError').textContent = '';
+                document.getElementById('usernameError').textContent = '';
+
+                if (!doctorName) {
+                    document.getElementById('doctorError').textContent = 'Doctor name is required.';
+                    isValid = false;
+                }
+
+                if (!departmentId) {
+                    document.getElementById('departmentError').textContent = 'Please select a department.';
+                    isValid = false;
+                }
+
+                if (!username) {
+                    document.getElementById('usernameError').textContent = 'username is require.';
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                const formData = new FormData();
+                formData.append('id', doctorId);
+                formData.append('doctor_name', doctorName);
+                formData.append('details', details);
+                formData.append('username', username);
+                formData.append('department_id', departmentId);
+                const oldImages = [...document.querySelectorAll('.removeExistingImage')].map(btn => btn.getAttribute('data-image'));
+                if (oldImages.length > 0) {
+                    oldImages.forEach(img => formData.append('old_images[]', img));
+                } else {
+                    formData.append('old_images', JSON.stringify([])); // Send empty array as a string
+                }
+
+
+                // Append new images
+                selectedImages.forEach(file => formData.append('attachments', file));
+
+                fetch('/api/update_doctor', {
+                    method: 'PUT',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Doctor details updated successfully",
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = '/api/doctors_list';
+                            });
+                        } else {
+                            if (data.message === 'Username already exists. Please choose a different one.') {
+                                document.getElementById('usernameError').textContent = data.message;
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: data.message
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Something went wrong. Please try again."
+                        });
+                    });
+
+            });
+        });
+
+    </script>
+
+    </body>
+
+    </html>

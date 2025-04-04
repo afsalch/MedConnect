@@ -1,0 +1,249 @@
+<%- include('../doctor/layout/header.ejs') %>
+
+
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Add Prescription</h2>
+                    <!-- <div>
+                    <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form id="prescriptionForm">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Prescription</label>
+                                        <textarea id="prescription" name="prescription" placeholder="Type here"
+                                            class="form-control" rows="4"></textarea>
+                                        <span id="prescriptionError" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="patient_id" name="patient_id" value="<%= patient_id %>">
+                            <input type="hidden" id="appointment_id" name="appointment_id" value="<%= appointment_id %>">
+
+                        
+                            <hr class="mb-4 mt-0">
+                        
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Images</label>
+                                        <div class="card-body">
+                                            <div class="input-upload">
+                                                <input id="imageInput" class="form-control" type="file" accept="image/*" multiple>
+                                            </div>
+                                            <div id="imagePreviewContainer" class="mt-3"></div>
+                                            <span id="imageError" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <hr class="mb-4 mt-0">
+                        
+                            <div class="row">
+                                <div class="col-lg-2 col-6 col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-sm rounded">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear())
+                </script> &copy; Nest - HTML Ecommerce Template .
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">
+                    All rights reserved
+                </div>
+            </div>
+        </div>
+    </footer>
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/assets/js/vendors/chart.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+        let selectedImages = []; // Store selected images
+    
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const files = Array.from(event.target.files);
+    
+            if (files.length > 0) {
+                const previewContainer = document.getElementById('imagePreviewContainer');
+    
+                files.forEach(file => {
+                    if (selectedImages.some(img => img.name === file.name && img.size === file.size)) {
+                        return; // Prevent duplicate files
+                    }
+    
+                    selectedImages.push(file);
+    
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const imageContainer = document.createElement('div');
+                        imageContainer.classList.add('position-relative', 'd-inline-block', 'p-2', 'border', 'rounded', 'me-2');
+    
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.classList.add('rounded', 'shadow', 'img-thumbnail');
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+    
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.innerHTML = '✖';
+                        deleteBtn.classList.add('btn', 'btn-danger', 'btn-sm', 'position-absolute', 'top-0', 'end-0', 'rounded-circle');
+                        deleteBtn.style.transform = 'translate(50%, -50%)';
+                        deleteBtn.style.padding = '2px 5px';
+                        deleteBtn.style.fontSize = '12px';
+    
+                        deleteBtn.addEventListener('click', function () {
+                            imageContainer.remove();
+                            selectedImages = selectedImages.filter(imgFile => imgFile !== file);
+                        });
+    
+                        imageContainer.appendChild(img);
+                        imageContainer.appendChild(deleteBtn);
+                        previewContainer.appendChild(imageContainer);
+                    };
+                    reader.readAsDataURL(file);
+                });
+    
+                event.target.value = ""; // Reset input to allow re-selection
+            }
+        });
+    
+        document.getElementById('prescriptionForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+    
+            // Get form data
+            const prescription = document.getElementById('prescription').value.trim();
+            const patientId = document.getElementById('patient_id').value.trim();
+            const appointmentId = document.getElementById('appointment_id').value.trim();
+            const prescriptionError = document.getElementById('prescriptionError');
+            const imageError = document.getElementById('imageError');
+    
+            let isValid = true;
+
+            // Validate patient_id
+    if (!patientId) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Patient ID is missing. Please try again."
+        });
+        return;
+    }
+    if (!appointmentId) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Appointment ID is missing. Please try again."
+        });
+        return;
+    }
+    
+            // Validate prescription
+            if (prescription === '') {
+                prescriptionError.textContent = 'Prescription is required.';
+                isValid = false;
+            } else {
+                prescriptionError.textContent = '';
+            }
+    
+            // Validate images (Optional: Uncomment if at least one image is required)
+            // if (selectedImages.length === 0) {
+            //     imageError.textContent = 'Please upload at least one image.';
+            //     isValid = false;
+            // } else {
+            //     imageError.textContent = '';
+            // }
+    
+            if (!isValid) return; // Stop submission if validation fails
+    
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('prescription', prescription);
+            formData.append('patient_id', patientId);
+            formData.append('appointment_id', appointmentId);
+            
+            selectedImages.forEach((image, index) => {
+                formData.append(`images`, image); // Append multiple images
+            });
+    
+            fetch('/api/add_prescription', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Prescription Added Successfully!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/prescription_list';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Something went wrong!",
+                        text: "Please try again later."
+                    });
+                });
+    
+        });
+    </script>
+
+    </body>
+
+    </html>

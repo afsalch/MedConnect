@@ -1,0 +1,405 @@
+<%- include('../admin/layout/header.ejs') %>
+
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Doctor List</h2>
+        </div>
+       
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="search form-control" />
+                </div>
+               
+                <div class="col-lg-2 col-6 col-md-3">
+                    <a href="/api/add_doctor_view" class="btn btn-primary btn-sm rounded">Add</a>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>SL NO</th>
+                            <th scope="col">Doctor Name</th>
+                            <th scope="col">Department</th>
+                            <th scope="col">Status</th>
+                          
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (doctor_list.length > 0) { %>
+                            <% doctor_list.forEach((doc, index) => { %>
+                                <tr>
+                                    <td><div style="width: 100px;"><%= (currentPage - 1) * itemsPerPage + index + 1 %></div></td>
+                                    
+                                   
+                                    <td><b><div style="width: 100px;"><%= doc.doctor_name %></div></b></td>
+                                    <td><b><div style="width: 100px;"><%= doc.department_name %></div></b></td>
+                                    
+                                    
+                                    <!-- Status Badge -->
+                                    <td>
+                                        <% if (doc.isBlocked === 1) { %>
+                                            <div style="width: 100px;"><span class="badge rounded-pill alert-danger">Blocked</span></div>
+                                            
+                                        <% } else { %>
+                                            <div style="width: 100px;"><span class="badge rounded-pill alert-success">Active</span></div>
+                                            
+                                        <% } %>
+                                    </td>
+                                    
+                                    
+                    
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> 
+                                                <i class="material-icons md-more_horiz"></i> 
+                                            </a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="/api/view_doctor_detail?id=<%= doc.id  %>">View detail</a>
+                                            
+                                                <% if (doc.doctor_time_status === 'pending') { %>
+                                                    <a class="dropdown-item" href="" onclick="cancelTime(event, '<%= doc.available_time_id %>')">Cancel Time</a>
+                                                    <a class="dropdown-item" href="" onclick="confirmTime(event, '<%= doc.available_time_id %>')">Confirm Time</a>
+                                                <% } %>
+                                            
+                                                <% if (doc.isBlocked === 1) { %>
+                                                    <a class="dropdown-item" href="" onclick="confirmActive(event, '<%= doc.id %>')">Activate</a>
+                                                <% } else { %>
+                                                    <a class="dropdown-item" href="/api/block_doctor?id=<%= doc.id %>" onclick="confirmBlock(event, '<%= doc.id %>')">Block</a>
+                                                <% } %>
+                                            
+                                                <a class="dropdown-item" href="/api/view_edit_doctor?id=<%= doc.id %>">Edit info</a>
+                                                <a class="dropdown-item text-danger" href="" onclick="confirmDelete(event, '<%= doc.id %>')">Delete</a>
+                                            </div>
+                                            
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No doctors found</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                    
+                </table>
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for(let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/api/doctor_list?page=<%= i %>">
+                            <%= i %>
+                        </a>
+                    </li>
+                    <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+<!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+<script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="assets/js/vendors/select2.min.js"></script>
+<script src="assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="/assets/js/vendors/chart.js"></script>
+<!-- Main Script -->
+<script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        $(".search").on("keyup", function () {
+            var searchTerm = $(this).val().toLowerCase(); // Get search input
+            var hasResults = false;
+
+            $("table tbody tr").each(function() {
+                var rowText = $(this).text().toLowerCase();
+                
+                if (rowText.includes(searchTerm)) {
+                    $(this).show();
+                    hasResults = true;
+                } else {
+                    if (!$(this).hasClass("no-result")) {
+                        $(this).hide();
+                    }
+                }
+            });
+
+            // Show "No results" row if no matches found
+            if (!hasResults) {
+                $(".no-result").show();
+            } else {
+                $(".no-result").hide();
+            }
+        });
+    });
+</script>
+
+<script>
+    function cancelTime(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure?',
+            text: 'Do you really want to cancel this time slot? if confirm cancel be edit',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#28a745',
+            cancelButtonText: 'No, keep it',
+            confirmButtonText: 'Yes, cancel it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/cancel_doctor`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Time slot canceled successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+
+    function confirmTime(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Confirm Time Slot?',
+            text: 'Do you really want to confirm this time slot? if confirm cannot be edit',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'No, cancel',
+            confirmButtonText: 'Yes, confirm it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/confirm_doctor`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Time slot confirmed successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+</script>
+
+
+<script>
+    function confirmActive(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure?',
+            text: 'Do you really want to activate this doctor?',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#28a745',
+            cancelButtonText: 'No, keep it',
+            confirmButtonText: 'Yes, activate it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/active_doctor`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Doctor activated successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/doctors_list';
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+
+    function confirmBlock(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure?',
+            text: 'Do you really want to block this doctor?',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#28a745',
+            cancelButtonText: 'No, keep it',
+            confirmButtonText: 'Yes, block it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/block_doctor`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Doctor blocked successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/doctors_list';
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+
+    function confirmDelete(event, depId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure?',
+            text: 'Do you really want to delete this doctor?',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#28a745',
+            cancelButtonText: 'No, keep it',
+            confirmButtonText: 'Yes, delete it',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/delete_doctor`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: depId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Doctor deleted successfully!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/api/doctors_list';
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                });
+            }
+        });
+    }
+</script>
+
+
+
+</body>
+</html>

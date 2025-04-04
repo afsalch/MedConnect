@@ -1,0 +1,206 @@
+<%- include('../admin/layout/header.ejs') %>
+
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Fees List</h2>
+        </div>
+       
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="search form-control" />
+                </div>
+               
+                <div class="col-lg-2 col-6 col-md-3">
+                    <a href="/api/add_fees_view" class="btn btn-primary btn-sm rounded">Add</a>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><div style="width: 100px;">SL NO</div></th>
+                            <th><div style="width: 100px;">Date</div></th>
+                            <th><div style="width: 100px;">Patient Name</div></th>
+                            <th><div style="width: 100px;">Doctor Name</div></th>
+                            <th><div style="width: 100px;">Payment Type</div></th>
+                            <th><div style="width: 100px;">Amount</div></th>
+                            <th><div style="width: 100px;">Margin</div></th>
+                            <th><div style="width: 100px;">Notes</div></th>
+                            <th><div style="width: 100px;">Action</div></th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        <% if (fees_list.length > 0) { %>
+                            <% fees_list.forEach((fee, index) => { %>
+                                <tr>
+                                    <td><div style="width: 100px;"><%= (currentPage - 1) * itemsPerPage + index + 1 %></div></td>
+                                    <td><%= new Date(fee.date).toLocaleDateString('en-GB') %></td>
+                                    <td><%= fee.patient_name %></td>
+                                    <td><%= fee.doctor_name %></td>
+                                    <td><%= fee.payment_type %></td>
+                                    <td>₹<%= fee.amount %></td>
+                                    <td><%= fee.margin %>% (₹<%= ((fee.margin / 100) * fee.amount).toFixed(2) %>)</td>
+                                    <td><%= fee.notes || 'N/A' %></td>
+                    
+                                    <td>
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> 
+                                                <i class="material-icons md-more_horiz"></i> 
+                                            </a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="/api/download_fees?id=<%= fee.id %>">Download</a>
+                                                <a class="dropdown-item" href="/api/view_edit_fees?id=<%= fee.id %>">Edit</a>
+                                                <a class="dropdown-item text-danger" href="" onclick="confirmDelete(event, '<%= fee.id %>')">Delete</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="9" class="text-center">No fees found</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                    
+                </table>
+                
+                
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for(let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/api/doctor_list?page=<%= i %>">
+                            <%= i %>
+                        </a>
+                    </li>
+                    <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+<!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+<script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="assets/js/vendors/select2.min.js"></script>
+<script src="assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="/assets/js/vendors/chart.js"></script>
+<!-- Main Script -->
+<script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        $(".search").on("keyup", function () {
+            var searchTerm = $(this).val().toLowerCase(); // Get search input
+            var hasResults = false;
+
+            $("table tbody tr").each(function() {
+                var rowText = $(this).text().toLowerCase();
+                
+                if (rowText.includes(searchTerm)) {
+                    $(this).show();
+                    hasResults = true;
+                } else {
+                    if (!$(this).hasClass("no-result")) {
+                        $(this).hide();
+                    }
+                }
+            });
+
+            // Show "No results" row if no matches found
+            if (!hasResults) {
+                $(".no-result").show();
+            } else {
+                $(".no-result").hide();
+            }
+        });
+    });
+</script>
+
+<script>
+    function confirmDelete(event, id) {
+        event.preventDefault();
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/delete_fees?id=${id}`, {
+                    method: "DELETE"
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'The fee has been deleted successfully.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload(); // Refresh the page after deletion
+                        });
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting fee:", error);
+                    Swal.fire("Error", "Something went wrong.", "error");
+                });
+            }
+        });
+    }
+</script>
+
+
+
+
+
+
+</body>
+</html>
